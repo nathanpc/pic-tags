@@ -19,7 +19,7 @@ normal=$(tput sgr0)
 # Usage dialog.
 function usage {
 	echo "Usage: $0 <command>"
-	echo "\n    command: build or clean"
+	echo -e "\n    command: build or clean"
 	exit 1
 }
 
