@@ -59,17 +59,51 @@ function build_xc8 {
 		if [[ -f $f ]]; then
 			header=$(basename $f)
 
-			# Checks if the file is a device header.
+			# Checks if the file is a valid device header.
 			if [[ $header =~ ^pic([a-zA-Z0-9]+)\.h$ ]]; then
+				# Make sure the device name is uppercase.
 				device=$(echo ${BASH_REMATCH[1]} | tr a-z A-Z)
+
+				# Build the tags.
 				build_tag "xc8" $f $device
 			fi
 		fi
 	done
 
 	# Build the last tag for the utility headers.
-	echo "Building tags from xc.h and pic.h"
-	ctags $ctflags -o $tagsdir/xc8/pic $hdir/xc.h $hdir/pic.h
+	echo -e "Building tags from xc.h and pic.h as \"$tagsdir/xc8/generic\""
+	ctags $ctflags -o $tagsdir/xc8/generic $hdir/xc.h $hdir/pic.h
+}
+
+# Builds the tags for XC16.
+function build_xc16 {
+	hdir="$xc16dir/support"
+	echo "${bold}Building tags for the 16-bit family${normal}"
+
+	for family in $hdir/*; do
+		# Making sure we are only getting the appropriate device folders.
+		if [[ -d $family && $(basename $family) =~ ^(ds)?PIC[a-zA-Z0-9]+ ]]; then
+			# Go through the header files for each device.
+			for f in $family/h/*.h; do
+				if [[ -f $f ]]; then
+					header=$(basename $f)
+
+					# Checks if a file is a valid device header.
+					if [[ $header =~ ^p([0-9]+[a-zA-Z0-9]+)[^x].h$ ]]; then
+						# Make sure the device name is uppercase.
+						device=$(echo ${BASH_REMATCH[1]} | tr a-z A-Z)
+
+						# Build the tags.
+						build_tag "xc16" $f $device
+					fi
+				fi
+			done
+		fi
+	done
+
+	# Build the last tag for the utility headers.
+	echo -e "Building tags for the generic headers as \"$tagsdir/xc16/generic\""
+	ctags $ctflags -o $tagsdir/xc16/generic $hdir/generic/h/*.h
 }
 
 # The actual execution of the script.
@@ -78,6 +112,9 @@ if [[ $# -gt 0 ]]; then
 		# Builds all the tags.
 		create_dirs
 		build_xc8
+		build_xc16
+		
+		echo -e "${bold}Done${normal}"
 	elif [[ $1 == "clean" ]]; then
 		# Cleans the tags.
 		clean
