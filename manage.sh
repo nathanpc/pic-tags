@@ -18,8 +18,9 @@ normal=$(tput sgr0)
 
 # Usage dialog.
 function usage {
-	echo "Usage: $0 <command>"
+	echo "Usage: $0 <command> [tag_folder]"
 	echo -e "\n    command: build or clean"
+	echo "    tag_folder: Where the tags should reside."
 	exit 1
 }
 
@@ -108,6 +109,12 @@ function build_xc16 {
 
 # The actual execution of the script.
 if [[ $# -gt 0 ]]; then
+	# Set the tags folder if specified.
+	if [[ $# -eq 2 ]]; then
+		tagsdir=$2
+	fi
+
+	# Commands.
 	if [[ $1 == "build" ]]; then
 		# Builds all the tags.
 		create_dirs
